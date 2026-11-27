@@ -47,3 +47,21 @@ generated/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Terraform generated files
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+
+# Ansible generated files
+*.retry
+
+# Kubernetes local credentials
+kubeconfig
+kubeconfig.yaml
+kubeconfig.yml

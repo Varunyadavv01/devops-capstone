@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: taskops-dev
+  labels:
+    project: taskops
+    environment: development
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: taskops-prod
+  labels:
+    project: taskops
+    environment: production
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: taskops-quota
+  namespace: taskops-dev
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 768Mi
+    limits.cpu: "2"
+    limits.memory: 1536Mi
+    pods: "10"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: taskops-quota
+  namespace: taskops-prod
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: 1536Mi
+    limits.cpu: "3"
+    limits.memory: 2560Mi
+    pods: "15"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: taskops-limits
+  namespace: taskops-dev
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: 250m
+        memory: 256Mi
+      defaultRequest:
+        cpu: 100m
+        memory: 128Mi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: taskops-limits
+  namespace: taskops-prod
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:
+        cpu: 100m
+        memory: 128Mi

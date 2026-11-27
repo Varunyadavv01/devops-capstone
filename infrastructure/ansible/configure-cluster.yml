@@ -1,0 +1,62 @@
+---
+- name: Configure TaskOps Kubernetes infrastructure
+  hosts: local
+  gather_facts: false
+
+  vars:
+    cluster_context: taskops-capstone
+
+  tasks:
+    - name: Verify dedicated Kubernetes cluster
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - "--context={{ cluster_context }}"
+          - get
+          - nodes
+      changed_when: false
+
+    - name: Wait for Kubernetes nodes to become ready
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - "--context={{ cluster_context }}"
+          - wait
+          - "--for=condition=Ready"
+          - nodes
+          - --all
+          - --timeout=120s
+      changed_when: false
+
+    - name: Configure namespaces and resource policies
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - "--context={{ cluster_context }}"
+          - apply
+          - -f
+          - "{{ playbook_dir }}/cluster-config.yml"
+      register: configuration
+      changed_when: >
+        'created' in configuration.stdout or
+        'configured' in configuration.stdout
+
+    - name: Display configuration results
+      ansible.builtin.debug:
+        var: configuration.stdout_lines
+
+    - name: Verify configured namespaces
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - "--context={{ cluster_context }}"
+          - get
+          - namespaces
+          - -l
+          - project=taskops
+      register: namespaces
+      changed_when: false
+
+    - name: Display TaskOps namespaces
+      ansible.builtin.debug:
+        var: namespaces.stdout_lines
