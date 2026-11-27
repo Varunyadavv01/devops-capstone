@@ -9,6 +9,6 @@ data:
   DB_PORT: "5432"
   DB_USER: taskops
   DB_SSLMODE: prefer
-  APP_TRUSTED_HOSTS: "localhost,127.0.0.1,[::1],taskops,taskops.taskops-prod.svc.cluster.local"
+  APP_TRUSTED_HOSTS: "localhost,127.0.0.1,[::1],taskops,taskops.taskops-prod.svc.cluster.local,192.168.67.2"
   LOG_LEVEL: INFO
   SEED_DEMO: "1"
