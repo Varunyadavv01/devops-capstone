@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taskops-config
+  namespace: taskops-prod
+data:
+  POSTGRES_DB: taskops
+  DB_HOST: taskops-db
+  DB_PORT: "5432"
+  DB_USER: taskops
+  DB_SSLMODE: prefer
+  APP_TRUSTED_HOSTS: "localhost,127.0.0.1,[::1],taskops,taskops.taskops-prod.svc.cluster.local"
+  LOG_LEVEL: INFO
+  SEED_DEMO: "1"

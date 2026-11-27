@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  01-bootstrap.sql: |
+    \getenv db_name POSTGRES_DB
+    \getenv app_user DB_USER
+    \getenv app_password DB_PASSWORD
+
+    BEGIN;
+    CREATE ROLE :"app_user" LOGIN PASSWORD :'app_password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
+    REVOKE CONNECT, TEMPORARY ON DATABASE :"db_name" FROM PUBLIC;
+    GRANT CONNECT ON DATABASE :"db_name" TO :"app_user";
+    CREATE SCHEMA taskops AUTHORIZATION :"app_user";
+    COMMIT;
+kind: ConfigMap
+metadata:
+  name: taskops-db-bootstrap
+  namespace: taskops-prod
