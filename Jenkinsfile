@@ -99,6 +99,37 @@ pipeline {
                 }
             }
         }
+
+        stage('Update GitOps') {
+            when {
+                expression {
+                    !sh(
+                        script: 'git log -1 --format=%s | grep -q "^GitOps:"',
+                        returnStatus: true
+                    ).equals(0)
+                }
+            }
+            steps {
+                withCredentials([gitUsernamePassword(
+                    credentialsId: 'github-credentials',
+                    gitToolName: 'Default'
+                )]) {
+                    sh '''
+                        git config user.name "TaskOps Jenkins"
+                        git config user.email "jenkins@taskops.local"
+
+                        sed -i "s|image: axdy02/taskops:.*|image: $IMAGE:$IMAGE_TAG|" kubernetes/deployment.yaml
+
+                        git add kubernetes/deployment.yaml
+
+                        if ! git diff --cached --quiet; then
+                            git commit -m "GitOps: Deploy TaskOps $IMAGE_TAG"
+                            git push origin HEAD:main
+                        fi
+                    '''
+                }
+            }
+        }
     }
 
     post {
