@@ -30,7 +30,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: taskops
-          image: axdy02/taskops:7d01d72
+          image: axdy02/taskops:210d80b
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
