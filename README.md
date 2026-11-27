@@ -148,11 +148,3 @@ TaskOps is intended for a private, single-user demonstration. Public exposure re
 
 The dashboard lists all matching tasks without pagination. Concurrent edits use last-write-wins semantics. The worker opens a fresh connection per database operation and supports small demonstration workloads. Later worker scaling will require a Prometheus aggregation strategy. Use separate secrets and delivery infrastructure for later environments.
 
-## Capstone roadmap
-
-1. Add Jenkins CI/CD, dependency and image scans, Jenkins Credentials, and Docker Hub image publishing.
-2. Provision the demonstration environment with Terraform and Ansible, then deploy to Kubernetes or Minikube using Argo CD and Kubernetes Secrets.
-3. Scrape metrics with Prometheus, build Grafana dashboards, and ingest application logs into Elasticsearch, Logstash, and Kibana.
-4. Exercise Blue-Green or Canary releases, automated rollback, and PostgreSQL backup and disaster recovery.
-
-The repository currently contains the application, PostgreSQL, and their local build and test configuration. The roadmap items are future capstone stages.
