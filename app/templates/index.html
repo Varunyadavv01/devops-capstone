@@ -1,0 +1,132 @@
+{% macro icon(name, size=20) -%}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  {% if name == "brand" %}<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 5V3m8 2V3M8 12l2.5 2.5L16 9"/>
+  {% elif name == "total" %}<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>
+  {% elif name == "pending" %}<circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 1.5"/>
+  {% elif name == "in_progress" %}<path d="M12 4a8 8 0 1 1-8 8"/><path d="M12 4v8h8"/>
+  {% elif name == "completed" %}<circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.4 2.4 4.6-4.6"/>
+  {% elif name == "add" %}<path d="M12 5v14M5 12h14"/>
+  {% elif name == "edit" %}<path d="m14.5 5.5 4 4M4 20l4.5-1 11-11a2.8 2.8 0 0 0-4-4l-11 11L4 20Z"/>
+  {% elif name == "delete" %}<path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5"/>
+  {% endif %}
+</svg>
+{%- endmacro %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f5">
+  <title>Tasks · TaskOps</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to tasks</a>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/" aria-label="TaskOps home"><span class="brand-mark">{{ icon('brand', 21) }}</span>TaskOps</a>
+      <div class="system">
+        <span class="version" title="Application version">v{{ release.version }}</span>
+        <span class="health" id="health" role="status">Checking backend</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell" id="main">
+    <div class="page-heading">
+      <h1>Tasks</h1>
+      <button class="button primary" id="add-task" type="button">{{ icon('add', 18) }} Add task</button>
+    </div>
+
+    <dl class="summary" aria-label="Task statistics">
+      {% for key, label in [('total', 'Total tasks'), ('pending', 'Pending'), ('in_progress', 'In progress'), ('completed', 'Completed')] %}
+      <div class="stat">
+        <dt>{{ label }}</dt>
+        <dd id="stat-{{ key }}">—</dd>
+        <span class="stat-icon stat-{{ key }}" aria-hidden="true">{{ icon(key) }}</span>
+      </div>
+      {% endfor %}
+    </dl>
+
+    <section class="panel" aria-labelledby="list-title">
+      <div class="panel-header">
+        <h2 id="list-title">Task list</h2>
+        <div class="filters" role="group" aria-label="Filter tasks by status">
+          {% for key, label in [('', 'All tasks'), ('pending', 'Pending'), ('in_progress', 'In progress'), ('completed', 'Completed')] %}
+          <button type="button" data-filter="{{ key }}" aria-pressed="{{ 'true' if not key else 'false' }}">{{ label }}</button>
+          {% endfor %}
+        </div>
+      </div>
+      <p class="notice" id="notice" role="alert" hidden></p>
+      <div class="empty" id="empty" role="status">Loading tasks…</div>
+      <table id="task-table" role="table" aria-label="Tasks" hidden>
+        <thead role="rowgroup">
+          <tr role="row">
+            <th scope="col" role="columnheader">Task</th><th scope="col" role="columnheader">Status</th>
+            <th scope="col" role="columnheader">Priority</th><th scope="col" role="columnheader">Updated</th>
+            <th scope="col" role="columnheader"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody id="task-rows" role="rowgroup"></tbody>
+      </table>
+      <footer class="panel-footer" id="task-count" role="status" hidden></footer>
+    </section>
+    <noscript><p class="notice">Enable JavaScript to manage tasks.</p></noscript>
+  </main>
+
+  <template id="task-row">
+    <tr role="row">
+      <td role="cell" class="task-main"><span class="task-title"></span><span class="task-description"></span></td>
+      <td role="cell" class="task-status"><span class="badge"></span></td>
+      <td role="cell" class="task-priority"><span class="priority"></span></td>
+      <td role="cell" class="task-updated"><time></time></td>
+      <td role="cell" class="row-actions">
+        <button class="icon-button edit" type="button">{{ icon('edit', 18) }}</button>
+        <button class="icon-button delete" type="button">{{ icon('delete', 18) }}</button>
+      </td>
+    </tr>
+  </template>
+
+  <dialog id="task-dialog" aria-labelledby="dialog-title">
+    <form id="task-form">
+      <h2 id="dialog-title">Add task</h2>
+      <label for="title">Title</label>
+      <input id="title" name="title" required maxlength="120" autofocus>
+      <label for="description">Description <span>(optional)</span></label>
+      <textarea id="description" name="description" maxlength="2000" rows="4"></textarea>
+      <div class="form-options">
+        <div>
+          <label for="status">Status</label>
+          <select id="status" name="status">
+            <option value="pending">Pending</option><option value="in_progress">In progress</option><option value="completed">Completed</option>
+          </select>
+        </div>
+        <div>
+          <label for="priority">Priority</label>
+          <select id="priority" name="priority">
+            <option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option>
+          </select>
+        </div>
+      </div>
+      <p class="form-error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button class="button secondary cancel" type="button">Cancel</button>
+        <button class="button primary" type="submit">Save task</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-message">
+    <form id="delete-form">
+      <h2 id="delete-title">Delete task?</h2>
+      <p id="delete-message"></p>
+      <p class="form-error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button class="button secondary cancel" type="button" autofocus>Cancel</button>
+        <button class="button danger" type="submit">Delete task</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
