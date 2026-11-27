@@ -101,7 +101,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: taskops-green
+    app: taskops
   ports:
     - name: http
       port: 8090
