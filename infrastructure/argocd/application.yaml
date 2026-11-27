@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: taskops
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/axdy02/devops-capstone.git
+    targetRevision: main
+    path: kubernetes
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: taskops-prod
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
